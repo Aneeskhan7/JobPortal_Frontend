@@ -15,7 +15,7 @@ import { API_PATHS } from "../../utils/apiPaths";
 import axiosInstance from "../../utils/axiosInstance";
 
 const Login = () => {
-  const {login} = useAuth()
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -75,12 +75,16 @@ const Login = () => {
     setFormState(prev => ({ ...prev, loading: true }));
 
     try {
+      console.log('Attempting login with:', { email: formData.email });
+      
       // Login API integration
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email: formData.email,
         password: formData.password,
         rememberMe: formData.rememberMe
       });
+
+      console.log('Login response:', response.data);
 
       setFormState(prev => ({ 
         ...prev, 
@@ -94,24 +98,19 @@ const Login = () => {
       if (token) {
         login(response.data, token);
 
-        // Redirect based on role
+        // Single redirect based on role
         setTimeout(() => {
-          window.location.href =
-            role === "employer"
-              ? "/employer-dashboard"
-              : "/find-jobs";
+          const redirectPath = role === "employer" 
+            ? "/employer-dashboard" 
+            : "/find-jobs";
+          window.location.href = redirectPath;
         }, 2000);
       }
 
-      // Redirect based on user role
-      setTimeout(() => {
-        const redirectPath = user.role === 'employer' 
-          ? '/employer-dashboard' 
-          : '/find-jobs';
-        window.location.href = redirectPath;
-      }, 1500);
-
     } catch (error) {
+      console.error('Login error:', error);
+      console.error('Error response:', error.response?.data);
+      
       setFormState(prev => ({ 
         ...prev, 
         loading: false,
@@ -122,7 +121,7 @@ const Login = () => {
     }
   };
 
-   if (formState.success) {
+  if (formState.success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <motion.div
@@ -216,7 +215,7 @@ const Login = () => {
                 {formState.showPassword ? (
                   <EyeOff className="w-5 h-5" />
                 ) : (
-                  <Eye clasw-5 h-5sName="" />
+                  <Eye className="w-5 h-5" />
                 )}
               </button>
             </div>
